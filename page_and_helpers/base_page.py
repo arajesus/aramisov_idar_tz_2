@@ -26,8 +26,7 @@ class BasePage:
 
     def open_by_url(self, url: str):
         """
-        Метод открывает страницу
-        :param url: страница
+        Открыть страницу по ссылке
         """
         self.driver.get(url)
         return self
@@ -35,14 +34,13 @@ class BasePage:
     def open_main_page(self, url: str = None):
         """
         Метод открывает страницу
-        :param url: страница
         """
         url = url or self.url
         self.driver.get(url)
         if self.element_is_visible_bool(locator='//td/div/img[not(@id="svg")]'):
             self.move_to_element_and_click(locator='//td/div/img[not(@id="svg")]')
 
-        self.element_is_visible(locator=navigate_locator['nav_item_by_name'].format("Киберспорт"))
+        assert self.element_is_visible_bool(locator=navigate_locator['nav_item_by_name'].format("Киберспорт"))
         time.sleep(5)
         return self
 
@@ -77,33 +75,22 @@ class BasePage:
     @retry((TimeoutException, NoSuchElementException), tries=5, delay=2)
     def get_element_path(self, locator: str) -> WebElement:
         """
-        Найти элемент
-        :param locator
-        :return: element
+            Найти элемент по локатору
         """
         try:
             return self.driver.find_element(By.XPATH, value=locator)
         except (TimeoutException, NoSuchElementException) as err:
-            BasePage.self_exception(err, locator)
+            self.self_exception(err, locator)
         except BaseException as err:
-            BasePage.self_exception(err, locator)
+            self.self_exception(err, locator)
 
     def get_elements_path(self, locator):
         """
-        Найти элементы
-        :param locator
-        :return: elements
+            Найти элементы по локатору
         """
         try:
             self.wait.until(EC.presence_of_all_elements_located(locator=(By.XPATH, locator)))
             return self.driver.find_elements(By.XPATH, value=locator)
-        except BaseException as err:
-            self.self_exception(err, locator)
-
-    def element_is_visible(self, locator):
-        try:
-            self.wait.until(EC.visibility_of_element_located(locator=(By.XPATH, locator)))
-            return self
         except BaseException as err:
             self.self_exception(err, locator)
 
@@ -115,7 +102,9 @@ class BasePage:
             return False
 
     def move_to_element_and_click(self, locator: str):
-        """Навести курсор на элемент и Нажать"""
+        """
+            Нажатие на элемент по локатору
+        """
         for _ in range(3):
             try:
                 element = self.get_element_path(locator=locator)
@@ -130,15 +119,17 @@ class BasePage:
         return self
 
     def get_text(self, locator) -> str:
-        """Получить не пустой текст"""
+        """
+            Получить текст по локатору
+        """
         element = self.get_element_path(locator)
         text = element.text
         assert bool(text), "Текст пуст"
         return text
 
     def get_text_element(self, element: WebElement) -> str:
-        """Получить текст элемента
-        :return text
+        """
+            Получить текст по элементу
         """
         return element.text
 
@@ -150,7 +141,9 @@ class BasePage:
         return self
 
     def clear_input(self, locator):
-        """Очистить поле ввода"""
+        """
+            Очистить поле ввода
+        """
         for i in range(0, int(len(self.get_attribute_value(locator=locator, attribute_name='value'))) + 1):
             self.set_value(locator=locator, value=Keys.BACKSPACE)
             self.set_value(locator=locator, value=Keys.DELETE)
@@ -158,19 +151,23 @@ class BasePage:
 
     def get_attribute_value(self, locator: str, attribute_name: str):
         """
-        Получить значение атрибута locator для WebElement
-        :param locator: xpath для WebElement
-        :param attribute_name: название атрибута
+            Получить атребуты по локатору
         """
         element = self.get_element_path(locator)
         return element.get_attribute(attribute_name)
 
     def click_nav_item(self, nav_item_name: str):
+        """
+            Нажатия на основную навигацию
+        """
         self.move_to_element_and_click(locator=navigate_locator['nav_item_by_name'].format(nav_item_name))
         if self.element_is_visible_bool(locator='//td/div/img[not(@id="svg")]'):
             self.move_to_element_and_click(locator='//td/div/img[not(@id="svg")]')
 
     def click_nav_item_cybersports(self, nav_item_name: str):
+        """
+            Нажатия на навигацию на странице cybersports
+        """
         self.move_to_element_and_click(locator=cybersports_page['nav_item_by_name'].format(nav_item_name))
         if self.element_is_visible_bool(locator='//td/div/img[not(@id="svg")]'):
             self.move_to_element_and_click(locator='//td/div/img[not(@id="svg")]')
