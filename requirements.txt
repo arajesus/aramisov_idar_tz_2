@@ -1,0 +1,6 @@
+selenium==4.14.0
+pytest==7.4.3
+allure-pytest==2.13.2
+
+retry~=0.9.2
+Faker~=23.2.1
